@@ -1,0 +1,286 @@
+/*
+// 1.simple adition operation of decimal values
+LDI R16 , 95     ;R16 = 95d = 0x5f
+LDI R17 , 19     ;R17 = 19d = 0x13
+ADD R16 , R17    ;R16 = R16 + R17 = 72
+	
+// 2.simple subtaction operation of decimal values
+LDI R16 , 21     ;R16 = 21d = 0x15
+LDI R17 , 16     ;R17 = 16d = Ox10
+SUB R16 , R17    ;R16 = R16 + R17
+
+// 3.Calculate Sum of three numbers - $72 + $5 +$77
+LDI R16 , 0x72    ;R16 = 0x72
+LDI R17 , 0x05    ;R17 = 0x05
+LDI R18 , 0x77    ;R18 = 0x77
+ADD R16 , R17     ;R16 = R16 + R17
+ADC R16 , R18     ;R16 = R16 + R18 = EE
+
+// 4.Increment and Decrement of Register
+LDI R16 , 0x17    ;R16 = Ox17
+INC R16			  ;R16 = R16+1 = 0x18
+LDI R17 , 0x17    ;R17 = 0x17
+DEC R17			  ;R17 = R17-1 = 0x16
+
+// 5.Multiplication 
+LDI R16 , 19      ;R16 = 19d = 0x13
+LDI R17 , 95      ;R17 = 95d = 0x5F
+MUL R16 , R17     ;R16 = R16*R18 = 70D  
+//Multiplication result will be stored always in 
+//R0 = lower byte 
+//R1 = upper byte 
+
+
+
+// 6.Add two 16-bit numbers - 9284 + 235A
+//LOWER BYTE -
+//R16 = 84   ,  R17 = 5A
+//R18 = 92   ,  R19 = 23
+LDI R16 , $84	  ;R16 = 84
+LDI R17 , $5A	  ;R17 = 5A
+LDI R18 , $92	  ;R18 = 92
+LDI R19 , $23	  ;R19 = 23
+ADD R16 , R17	  ;R16 = R16 + R17 = DE
+ADC R18 , R19	  ;R18 = R18 + R19 = B5
+
+// 7.Add contents of memory location 0x0100 , 0x0101 //   and store in 0x0102
+LDS R0 , 0x0100	    ;contents of memory location        
+                    ;0x0100 is loaded into R0
+LDS R1 , 0x0101		;contents of memory location
+                    ; 0x0101 is loaded into R1
+ADD R0 , R1			;RO = R0 + R1
+STS 0x0102 , R0		;contents of R0 is stored in 
+   					;memory location 0X0102
+
+// 8.Add and Sub the contents of location 0x220,0x221 and store result in 0x225 , 0x226
+LDS R0 , 0x0220	;contents of memory location ;0x0220 is loaded into R0
+LDS R1 , 0x0221	;contents of memory location ;0x0221 is loaded into R1
+ADD R0 , R1			;R0 = R0 + R1 
+STS 0x0225 , R0	;contents of R0 is stored in ;memory location 0X0225
+LDS R0 , 0x0220	;contents of memory location ;0x0220 is loaded into R0
+SUB R0 , R1			;R0 = R0 - R1
+STS 0x0226 , R0	;contents of R0 is stored in ;memory location 0X0226
+
+// 9.Rotate the contents of register R0 to R3 (means R0 ka content R1 mein, R1 ka - R2 mein......)
+LDS R0 , 0x100	;contents of memory location ;0x100 is loaded into R0
+LDS R1 , 0x101	;contents of memory location ;0x101 is loaded into R1
+LDS R2 , 0x102	;contents of memory location ;0x102 is loaded into R2
+LDS R3 , 0x103	;contents of memory location ;0x103 is loaded into R3
+MOV R4 , R3			;contents of R3 are moved into R4
+MOV R3 , R2			;contents of R2 are moved into R3
+MOV R2 , R1			;contents of R1 are moved into R2
+MOV R1 , R0			;contents of R0 are moved into R1
+MOV R0 , R4			;contents of R4 are moved into R0
+CLR R4	;Clear the contents of R4 as it is ;temporary
+
+//10.a.Move 4-bytes of data from 0X100 to 0X150 (simple method)
+LDS R0 , 0x100	;contents of memory location ;0x100 is loaded into R0
+STS 0x150 , R0	;contents of R0 is stored in ;memory location 0X150 (1-BYTE)
+LDS R0 , 0x101	;contents of memory location ;0x101 is loaded into R0
+STS 0x151 , R0	;contents of R0 is stored in ;memory location 0X151 (1-BYTE)
+LDS R0 , 0x102	;contents of memory location ;0x102 is loaded into R0
+STS 0x152 , R0	;contents of R0 is stored in ;memory location 0X152 (1-BYTE)
+LDS R0 , 0x103	;contents of memory location ;0x103 is loaded into R0
+STS 0x153 , R0	;contents of R0 is stored in ;memory location 0X153 (1-BYTE)
+
+// 10.b.Move 4-bytes of data from 0X100 to 0X150 (USING X AND Y POINTERS)
+	  LDI R16 , 0x04	;R16 = 4 (it acts as a counter 4 times(4-bytes))
+	  LDI R26 , 0x00	;R26 = 0x00
+	  LDI R27 , 0x01	;R27 = 0x01  (X pointer will point at memory location 0x0100)
+	  LDI R28 , 0x05	;R28 = 0x05
+	  LDI R29 , 0x01	;R29 = 0x01  (Y pointer will point at memory location 0x0150)
+AGAIN:LD	R0  , X+	;load the contents of X pointer location into R0 and Increment X pointer
+	  ST 	Y+	, R0	;store the contents of R0 into Y pointer location and Increment Y pointer
+	  DEC R16			;R16 = R16 - 1 (decrementing R0 by 1)
+	  BRNE AGAIN		;if branch is not equal to zero (Z = 0) then goto AGAIN
+HERE: JMP HERE			;if branch is equal to zero (Z = 1) then jump HERE (end of the code)
+
+// 11.ALP to demonstrate indirect addressing mode.
+LDI R26 , 0x00		;R26 = 0x00
+LDI R27 , 0x01		;R27 = 0x01  (X pointer will point at memory location 0x0100)
+LD R16  , X			;load the contents of X pointer location 0x0100 into R16
+LD R17  , X+		;load the contents of X pointer location 0x0100 into R17 and Increment X pointer 
+LD R18  , -X		;decrement the X pointer and load the contents of pointer location 0x0100 into R18
+
+// 12.Make PORTB as output port and send some data
+LDI R16 , 0xFF		;R16 = 0xFF
+OUT DDRB, R16		;making PORTB as output port
+LDI R17 , $55		;R17 = 55h
+OUT PORTB,R17		;sending 55h to PORTB (output on PORTB)
+
+// 13.Declare PORT-C as input port, PORT-B as output port. Read some data from PORT-C and send to PORT-B
+LDI R16 , 0x00		;R16 = 0x00
+OUT DDRC, R16		;making PORTC as input PORT (NOTE- after this step give input in PINC in IO)
+LDI R17 , 0xFF		;R17 = 0xFF
+OUT DDRB, R17		;making PORTB as output PORT
+IN  R18  , PINC		;give input to PICC and stores it in R0
+OUT PORTB, R18		;displays the given input on PORTB
+
+// 14.Read 2 numbers. 1 from PORT-B and 1 from memory location 0x0100.Add those 2 numbers and send it to PORT-C
+LDI R16 , 0x00		;R16 = 0x00
+OUT DDRB, R16		;making PORT-B as input PORT (NOTE- after this step give input in PINB in IO)
+LDI R17 , 0xFF		;R17 = 0xFF
+OUT DDRC, R17		;making PORT-C as output PORT
+IN  R18 , PINB		;taking input from PIN-B
+LDS R19 , 0x0100	;contents of memory location 0x100 is loaded into R19
+ADD R18 , R19		;R18 = R18 + R19
+OUT PORTC, R18		;displays the contents of R18 to PORT-C
+
+// 15.Move block of data from 0x0201 to 0x0301. Read the block size from location from 0x0200
+		LDI R26 , 0x00		;R26 = 0x00
+		LDI R27 , 0x02		;R27 = 0x02  (X pointer will point at memory location 0x0200)
+		LDI R28 , 0x01		;R28 = 0x01
+		LDI R29 , 0x03		;R29 = 0x03  (Y pointer will point at memory location 0x0301)
+		LD  R20 , X+		;load the contents of X pointer location 0x0200 into R20 and Increment X pointer (IT IS LIKE COUNTER)
+AGAIN : LD  R0  , X+		;load the contents of X pointer location 0x0100 into R0 and Increment X pointer 
+		ST  Y+  , R0		;store the contents of R0 into Y pointer location 0X0301 and Increment Y pointer 
+		DEC R20				;decrement R20 by 1
+		BRNE AGAIN			;if branch is not equal to zero then goto AGAIN
+HERE  :	RJMP HERE			;else jump HERE 
+
+// 16.Read 10-bytes of data stored in memory location starting from 0x200, increment the data by 
+//    1 and store the results in memory locations starting from 0x240
+		LDI R26 , 0x00		;R26 = 0x00
+		LDI R27 , 0x02		;R27 = 0x02  (X pointer will point at memory location 0x0200)
+		LDI R28 , 0x40		;R28 = 0x40
+		LDI R29 , 0x02		;R29 = 0x02	 (Y pointer will point at memory location 0x0240)
+		LDI R16 , $09		;R16 = 09h
+AGAIN : LD  R0  , X+		;load the contents of X pointer location 0x0200 into R0 and Increment X pointer 
+		INC R0				;increment R0 by 1
+		ST  Y+  , R0		;store the contents of R0 into Y pointer location 0X0240 and Increment Y pointer 
+		DEC R16 
+		BRNE AGAIN			;if branch is not equal to zero then goto AGAIN 
+HERE  : JMP HERE			;else jump here
+
+// 17.Reverse aan array of 10-Bytes stored in memory locations starting from 0x0200 and store 
+//    resulting array in locations from 0x0250
+		LDI R26 , 0x0A		;R26 = 0x0A
+		LDI R27 , 0x02		;R27 = 0x02  (X pointer will point at memory location 0x020A)
+		LDI R28 , 0x50		;R28 = 0x50
+		LDI R29 , 0x02		;R29 = 0x02	 (Y pointer will point at memory location 0x0250)
+		LDI R16 , 10		;R16 = 09h
+AGAIN : LD  R0  , -X		;load the contents of X pointer location 0x0200 into R0 and pre decrement X pointer 
+		ST  Y+  , R0		;store the contents of R0 into Y pointer location 0X0250 and Increment Y pointer 
+		DEC R16 
+		BRNE AGAIN			;if branch is not equal to zero then goto AGAIN 
+HERE  : JMP HERE			;else jump here
+
+// 18.Check given byte is even or odd. If it is even then send 0x00 to PORT-C, else send 0xFF
+		LDI R16 , 0xFF		;R16 = 0xFF
+		OUT DDRC, R16		;making PORT-C as output PORT
+		LDS R17 , 0x0100	;contents of memory location 0x0100 is stored into R17
+		LSR R17				;logical left shift to check Carry on LSB if C=1 then ODD else if C=0 EVEN
+		BRCS ODD			;if C=1 then goto odd else execute below part
+		LDI R18 , 0xFF		;R18 = 0xFF
+		OUT PORTC,R18		;sending FF to PORT-C
+		JMP HERE			;jump to label HERE
+ODD   : LDI R18 , 0x00		;R18 = 0x00
+		OUT PORTC,R18		;sending 00 to PORT-C
+HERE  : JMP HERE 
+
+// 19.Check given byte is even or odd. If it is even then send 0x00 to PORT-C, else send 0xFF
+		LDI R16 , 0xFF		;R16 = 0xFF
+		OUT DDRA, R16		;making PORT-A as output PORT
+		LDS R17 , 0x0100	;contents of memory location 0x0100 is stored into R17
+		LSR R17				;logical left shift to check Carry on LSB if C=0 then POSITV else if C=0 EVEN
+		BRCC POSITV         ;if C=0 then goto POSITV else execute below part
+		LDI R18 , 0xFF		;R18 = 0xFF
+		OUT PORTA,R18		;sending FF to PORT-A
+		JMP HERE			;jump to label HERE
+POSITV: LDI R18 , 0x00		;R18 = 0x00
+		OUT PORTA,R18		;sending 00 to PORT-A
+HERE  : JMP HERE 
+
+
+
+// 20.simple ALP to ADD two numbers F9 + D8 to get idea of SFR.
+LDI R16 , 0xF9		;R16 = 0xF9
+LDI R17 , 0xD8		;R17 = 0xD8
+ADD R16 , R17		;R16 = R16 + R17
+
+// 21.count the number of 1's in a byte of data.
+		CLR R20
+		LDI R16 , 0x08		;R16 = 0x08		(COUNTER AS 8 BITS TO LSR)
+		LDI R17 , 0x68		;R17 = 0x68		(ACTUAL VALUE)
+AGAIN :	LSR R17				;logical shifr right operation on contents of R17 
+	  	BRCS ONE			;if carry is set C = 1 then goto ONE and increment R20
+		JMP LAST			;else Jump to last 
+ONE   : INC R20				;increment R20
+LAST  : DEC R16				;decrement R16
+		BRNE AGAIN			;if not equal to zero Z = 0  then goto again
+HERE  :	JMP HERE			;else jump here
+
+// 22.count the number of 0's in a byte of data.
+		CLR R20
+		LDI R16 , 0x08		;R16 = 0x08		(COUNTER AS 8 BITS TO LSR)
+		LDI R17 , 0x68		;R17 = 0x68		(ACTUAL VALUE)
+AGAIN :	LSR R17				;logical shifr right operation on contents of R17 
+	  	BRCC ZERO			;if carry is clear C = 0 then goto ZERO and increment R20
+		JMP LAST			;else Jump to LAST 
+ZERO  : INC R20				;increment R20
+LAST  : DEC R16				;decrement R16
+		BRNE AGAIN			;if not equal to zero Z = 0  then goto again
+HERE  :	JMP HERE			;else jump here
+
+// 23.Write an ALP to increment the initial content of register R16 till it reaches value 0X10, stop
+//    incrementing and load R31 with FF
+		LDI R16 , 0x09		;R16 = 0x09
+CHECK :	CPI R16 , 0x10      ;compare R16 with 0x10
+		BRCC DOWN			;if carry is clear means R16 is BIG than 0X10 then goto DOWN
+		INC R16				;increment R16 with ONE
+		JMP CHECK
+DOWN  : LDI R31 , 0xFF		;R31 = 0xFF
+HERE  : JMP HERE
+
+// 24.Write an ALP to read five 8-bits numbers stored in location strating from 0X0200. Find the 
+//    smallest number and store it in 0X0210.
+		LDI R16 , 0x04		;R16 = 0x04   (4 comparisons)
+		LDI R26 , 0x00		;R26 = 0x00
+		LDI R27 , 0x02		;R27 = 0x02	(X pointer will point at memory location 0x0200)
+		LD  R0  , X+		;load the contents of X pointer location 0x0200 into R0 and increment X pointer 
+AGAIN :	LD  R1  , X+		;load the contents of X pointer location 0x0201 into R0 and increment X pointer 
+		CP  R0  , R1		;compare R0 with R1
+		BRCC L1				;if C=0, means R1 is small 
+		JMP DOWN
+L1	  : MOV R0  , R1		;move contents of R1 int R0 bcz R1 is small as C= 0
+DOWN  : DEC R16
+		BRNE AGAIN			;branch if not equal to zero
+		STS 0x0210,R0		;store R0 contents into mem. location 0X0200
+HERE  : JMP HERE
+
+// 25.Write an ALP to read five 8-bits numbers stored in location strating from 0X0200. Find the 
+//    largest number and store it in 0X0210.
+		LDI R16 , 0x04		;R16 = 0x04   (4 comparisons)
+		LDI R26 , 0x00		;R26 = 0x00
+		LDI R27 , 0x02		;R27 = 0x02	(X pointer will point at memory location 0x0200)
+		LD  R0  , X+		;load the contents of X pointer location 0x0200 into R0 and increment X pointer 
+AGAIN :	LD  R1  , X+		;load the contents of X pointer location 0x0201 into R0 and increment X pointer 
+		CP  R0  , R1		;compare R0 with R1
+		BRCS L1				;if C=1, means R1 is big 
+		JMP DOWN
+L1	  : MOV R0  , R1		;move contents of R1 int R0 bcz R1 is big as C= 1
+DOWN  : DEC R16
+		BRNE AGAIN			;branch if not equal to zero
+		STS 0x0210,R0		;store R0 contents into mem. location 0X0200
+HERE  : JMP HERE
+
+// 26.Write an ALP to ADD three 8-bit numbers stored from memory location 0x0200 , 0x0201 , 0x0202
+//    and store the result in memory locations starting from 0x0203 (msb)
+//F6 + B2 + C5 =					  FF + FF + FF =
+//0X0203 - 02   0x0204 - 6D			  0X0203 - 02 , 0x0204 - FD 
+		LDS R16 , 0x0200	;contents of memory location 0x0200 is loaded into R16
+		LDS R17 , 0x0201	;contents of memory location 0x0201 is loaded into R17
+		LDS R18 , 0x0202	;contents of memory location 0x0202 is loaded into R18
+		ADD R16 , R17		;R16 = R16 + R17
+		BRCC  L1			;if carry = 0 then goto L1
+		INC R0				;increment R0 by 1 (means carry is there)
+		CLC					;clear the carry bit- 0
+   L1 : ADD R16 , R18		;R16 = R16 + R18
+		BRCC L2				;if carry = 0 then goto L2
+		INC R0				;increment R0 by 1 (means carry is there)
+   L2 : STS 0x0203,R0		;store R0 contents into mem. location 0X0203
+		STS 0x0204,R16		;store R16 contents into mem. location 0X0204
+HERE  :	JMP HERE
+*/
+
+
